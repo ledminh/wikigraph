@@ -4,11 +4,34 @@ import re
 
 def getTags(wikiLink):
     tags = fromWikiLinkToTags(wikiLink)
-    tags = removeSubstring(tags, 'Category:')
     tags = getFirstOption(tags)
+    tags = removeSubstring(tags, '[[')
+    tags = removeSubstring(tags, ']]')
+    tags = removeSubstring(tags, '.')
+    tags = removeTagIncludeSubstring(tags, 'File:')
+    tags = removeTagIncludeSubstring(tags, 'Category:')
+    #tags = toLower(tags)
     tags = removeDuplicates(tags)
 
     return tags
+
+def toLower(tagsList):
+    newTagsList = []
+
+    for t in tagsList:
+        newTagsList.append(t.lower())
+    
+    return newTagsList
+
+def removeTagIncludeSubstring(tagsList, substring):
+    newTagsList = []
+
+    for t in tagsList:
+        iS = t.find(substring)
+        if(iS == -1):
+            newTagsList.append(t)
+    
+    return newTagsList
 
 def removeDuplicates(tagsList):
     return list(dict.fromkeys(tagsList))
@@ -42,7 +65,6 @@ def getFirstOption(tagsList):
 def fromWikiLinkToTags(linkArticle):
     cutIndex = linkArticle.find('/wiki') + 5
     linkXML = linkArticle[:cutIndex] + '/Special:Export' + linkArticle[cutIndex:]
-    
     
     response = urllib.request.urlopen(linkXML)
     xml_str = response.read()
