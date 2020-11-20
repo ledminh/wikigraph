@@ -7,75 +7,72 @@ def main(argv):
         return
     id = 0
 
-    nameCode = convertToNameCode(argv[1])
-
-
+    
+    firstKey = codify(argv[1])
+    
     theList = {
-        nameCode : {
+        firstKey : {
             'index': id,
             'link': argv[1],
             'connectedNodes': []
         }
     }
     
-    """
-    print(theList)
-    print(theList[argv[1]])
-    print(theList[argv[1]]['index'])
-    print(theList[argv[1]]['connectedNodes'])
-    """
-
     tags = gT.getTags(argv[1])
     
+    d = toDict(tags)
+
     originID = id
+
+    for key in d.keys():
+        if key not in theList:
+            id += 1
+
+            theList[key] = {
+                'index': id,
+                'link': d[key],
+                'connectedNodes': [originID]
+            }
+        else:
+            theList[key]['connectedNodes'].append(originID)
+
+    
+
+
+def codify(text):
+    return removeSubstring(text.lower(), [' ', '.', ':', '_', '(', ')', '-']) 
+    
+
+def removeSubstring(text, substrings):
+    result = text
+
+    for sString in substrings:
+        iS = result.find(sString)
+
+        while(iS != -1):
+            result = result[:iS] + result[(iS + len(sString)):]
+            iS = result.find(sString)
+        
+
+        
+    return result
+
+def toDict(tags):
+    l = {}
 
     for t in tags:
         articleLink = 'https://en.wikipedia.org/wiki/' + '_'.join(t.split(' '))
+        key = codify(t)
 
-        nC = convertToNameCode(articleLink)
+        if key not in l:
+            l[key] = articleLink
 
-        if nC not in theList:
-            id += 1
-
-            theList[nC] = {
-                'index': id,
-                'link': articleLink,
-                'connectedNodes': [originID] 
-            }
-        else:
-            theList[nC]['connectedNodes'].append(originID)
-
-    
-    
-    print(theList)
-
-
-
-def convertToNameCode(link):
-    nameCode = removeSubstring(link.lower(), '/')
-    nameCode = removeSubstring(nameCode, 'https')
-    nameCode = removeSubstring(nameCode, 'http')
-    nameCode = removeSubstring(nameCode, '.')
-    nameCode = removeSubstring(nameCode, ':')
-    nameCode = removeSubstring(nameCode, '_')
-
-    return nameCode
-
-
-def removeSubstring(text, substring):
-    result = text
-    iS = result.find(substring)
-
-    while(iS != -1):
-        result = result[:iS] + result[(iS + len(substring)):]
-        iS = result.find(substring)
-
-
-    return result
+    return l
 
 
 if __name__ == "__main__":
     main(sys.argv)
+    
 
 
 

@@ -10,7 +10,6 @@ def getTags(wikiLink):
     tags = removeSubstring(tags, '.')
     tags = removeTagIncludeSubstring(tags, 'File:')
     tags = removeTagIncludeSubstring(tags, 'Category:')
-    #tags = toLower(tags)
     tags = removeDuplicates(tags)
 
     return tags
