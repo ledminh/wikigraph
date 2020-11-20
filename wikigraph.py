@@ -1,46 +1,85 @@
 import sys
 import gT
-
+import json
 
 def main(argv):
     if(len(argv) == 0):
         return
+    
+    theList = crawling(argv[1], int(argv[2]))
+    
+    print("Writing to file ...")
+
+    with open('result.json', 'w') as fp:
+        json.dump(theList, fp)
+        print("The dict is written to result.json")
+
+
+
+
+def crawling(link, depth):
     id = 0
 
-    
-    firstKey = codify(argv[1])
-    
+    done = False
+
+    originalKey = codify(link)
+
     theList = {
-        firstKey : {
+        originalKey: {
             'index': id,
-            'link': argv[1],
-            'connectedNodes': []
+            'link': link,
+            'connectedNodes': [],
+            'level': 0,
+            'done': False
         }
     }
-    
-    tags = gT.getTags(argv[1])
-    
-    d = toDict(tags)
 
-    originID = id
+    count = 0
+    print("Start crawling node:")
 
-    for key in d.keys():
-        if key not in theList:
-            id += 1
+    while(done != True):
+        thisLevel = theList[originalKey]['level'] + 1
 
-            theList[key] = {
-                'index': id,
-                'link': d[key],
-                'connectedNodes': [originID]
-            }
-        else:
-            theList[key]['connectedNodes'].append(originID)
+        tags = gT.getTags(theList[originalKey]['link'])
 
-    
+        d = toDict(tags)
+
+        for key in d.keys():
+            if key not in theList:
+                id += 1
+
+                theList[key] = {
+                    'index': id,
+                    'link': d[key],
+                    'connectedNodes': [],
+                    'level': thisLevel,
+                    'done': False
+                }
+
+            theList[originalKey]['connectedNodes'].append(
+                theList[key]['index'])
+
+        theList[originalKey]['done'] = True
+
+        done = True  # first, suppose that we're all done
+
+        for k in theList.keys():
+            if(theList[k]['level'] < depth
+                    and theList[k]['done'] == False):
+                done = False  # well, turn out, we're not done yet
+                originalKey = k
+                break
+        
+        count += 1
+        print("Node", count, "done!")
+
+    print("")
+
+    return theList
 
 
 def codify(text):
-    return removeSubstring(text.lower(), [' ', '.', ':', '_', '(', ')', '-']) 
+    return removeSubstring(text.lower(), ['https://en.wikipedia.org/wiki/',' ', '.', ':', '_', '(', ')', '-']) 
     
 
 def removeSubstring(text, substrings):

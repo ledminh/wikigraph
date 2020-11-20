@@ -1,4 +1,6 @@
 import urllib.request
+import urllib.error 
+from urllib.parse import quote
 from xml.dom import minidom
 import re
 
@@ -62,21 +64,29 @@ def getFirstOption(tagsList):
 
 
 def fromWikiLinkToTags(linkArticle):
-    cutIndex = linkArticle.find('/wiki') + 5
-    linkXML = linkArticle[:cutIndex] + '/Special:Export' + linkArticle[cutIndex:]
+    cutIndex = linkArticle.find('/wiki/') + 6
+    linkXML = linkArticle[:cutIndex] + 'Special:Export/' + quote(linkArticle[cutIndex:])
     
+
     response = urllib.request.urlopen(linkXML)
+     
     xml_str = response.read()
     xmldoc = minidom.parseString(xml_str)
 
+    
 
     obs_values = xmldoc.getElementsByTagName('text')
+
+    tags = []
+
+    if(len(obs_values) == 0):
+        return tags
 
     text = obs_values[0].firstChild.nodeValue
     starts = [m.start() for m in re.finditer('\[\[', text)]
     ends = [m.end() for m in re.finditer('\]\]', text)]
 
-    tags = []
+
     for i in range(len(starts)):
         tags.append(text[starts[i] + 2:ends[i] - 2])
 
