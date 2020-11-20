@@ -7,12 +7,13 @@ def main(argv):
         return
     
     theList = crawling(argv[1], int(argv[2]))
-    
+
+
     print("Writing to file ...")
 
-    with open('result.json', 'w') as fp:
+    with open(argv[3], 'w') as fp:
         json.dump(theList, fp)
-        print("The dict is written to result.json")
+        print("The dict is written to", argv[3])
 
 
 
@@ -73,7 +74,8 @@ def crawling(link, depth):
         count += 1
         print("Node", count, "done!")
 
-    print("")
+    print("----------------")
+    print(len(theList.keys()), "nodes are generated!")
 
     return theList
 
