@@ -7,10 +7,29 @@ def main(argv):
         return
     
     theList = crawling(argv[1], int(argv[2]))
+    
+    print("----------------------------")
+    print(len(theList.keys()), "nodes are generated!")
+    input("Press ENTER to scan " + str(len(theList.keys())) + " nodes for second round to add edges ...")
+    print("----------------------------")
+    print("Second Round (adding edges): ")
 
+    for kList in theList.keys():
+        tags = gT.getTags(theList[kList]['link'])
+        d = toDict(tags)
+
+        for kD in d.keys():
+            if kD in theList:
+                theList[kList]['connectedNodes'].append(theList[kD]['index'])
+
+        print("Scanning node", theList[kList]['index'], "done!")
+    
+
+    print("----------------------------")
+    print("SCANNING DONE!")
 
     print("Writing to file ...")
-
+    
     with open(argv[3], 'w') as fp:
         json.dump(theList, fp)
         print("The dict is written to", argv[3])
@@ -56,10 +75,7 @@ def crawling(link, depth):
                     'level': thisLevel,
                     'done': False
                 }
-
-            theList[originalKey]['connectedNodes'].append(
-                theList[key]['index'])
-
+            
         theList[originalKey]['done'] = True
 
         done = True  # first, suppose that we're all done
@@ -74,8 +90,6 @@ def crawling(link, depth):
         count += 1
         print("Node", count, "done!")
 
-    print("----------------")
-    print(len(theList.keys()), "nodes are generated!")
 
     return theList
 

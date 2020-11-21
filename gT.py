@@ -2,6 +2,7 @@ import urllib.request
 import urllib.error 
 from urllib.parse import quote
 from xml.dom import minidom
+from xml.parsers.expat import ExpatError
 import re
 
 def getTags(wikiLink):
@@ -68,16 +69,23 @@ def fromWikiLinkToTags(linkArticle):
     linkXML = linkArticle[:cutIndex] + 'Special:Export/' + quote(linkArticle[cutIndex:])
     
 
-    response = urllib.request.urlopen(linkXML)
-     
-    xml_str = response.read()
-    xmldoc = minidom.parseString(xml_str)
-
     
+    
+    tags = []
+
+    try:
+        response = urllib.request.urlopen(linkXML)
+
+        xml_str = response.read()
+        xmldoc = minidom.parseString(xml_str)    
+    except ExpatError:
+        return tags
+    except urllib.error.HTTPError:
+        return tags
+    except urllib.error.URLError:
+        return tags
 
     obs_values = xmldoc.getElementsByTagName('text')
-
-    tags = []
 
     if(len(obs_values) == 0):
         return tags
@@ -88,6 +96,7 @@ def fromWikiLinkToTags(linkArticle):
 
 
     for i in range(len(starts)):
-        tags.append(text[starts[i] + 2:ends[i] - 2])
+        if(i < len(ends)):
+            tags.append(text[starts[i] + 2:ends[i] - 2])
 
     return tags
