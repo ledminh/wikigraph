@@ -1,6 +1,9 @@
 import sys
 import gT
+import createGraph
 import json
+
+
 
 def main(argv):
     if(len(argv) == 0):
@@ -22,7 +25,7 @@ def main(argv):
             if kD in theList:
                 theList[kList]['connectedNodes'].append(theList[kD]['index'])
 
-        print("Scanning node", theList[kList]['index'], "done!")
+        #print("Scanning node", theList[kList]['index'], "done!")
     
 
     print("----------------------------")
@@ -34,9 +37,11 @@ def main(argv):
         json.dump(theList, fp)
         print("The dict is written to", argv[3])
 
-
-
-
+    input("Press ENTER to create graph file.")
+    print("----------------------------")
+    print("Third Round (generating graph file): ")
+    createGraph.generate(argv[3])
+    
 def crawling(link, depth):
     id = 0
 
@@ -88,7 +93,7 @@ def crawling(link, depth):
                 break
         
         count += 1
-        print("Node", count, "done!")
+        #print("Node", count, "done!")
 
 
     return theList
